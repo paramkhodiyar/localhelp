@@ -1,0 +1,101 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Loading from "@/components/loading";
+
+import {
+  FaChalkboardTeacher,
+  FaBroom,
+  FaDog,
+  FaLaptopCode,
+  FaTools,
+  FaTruckMoving,
+  FaUtensils,
+  FaRegLightbulb,
+} from "react-icons/fa";
+
+export default function ServicesPage() {
+  const router = useRouter();
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+const isProd = process.env.NEXT_PUBLIC_IS_PROD === "true";
+
+const URL = isProd
+  ? "https://localhelpbackendv2.onrender.com"
+  : "http://localhost:4040";
+
+ 
+  const iconMap = {
+    FaTools,
+    FaBroom,
+    FaDog,
+    FaChalkboardTeacher,
+    FaUtensils,
+    FaTruckMoving,
+    FaRegLightbulb,
+    FaLaptopCode,
+  };
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const res = await fetch(`${URL}/api/categories`);
+        const data = await res.json();
+
+        setCategories(data.categories || []);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCategories();
+  }, []);
+
+  if (loading)
+    return (
+      <Loading />
+    );
+
+  return (
+    <div className="min-h-screen bg-[#ece9d8] pt-24 pb-16 px-6">
+      <div className="max-w-7xl mx-auto">
+        <a
+        href="/landingpage"
+        className="px-6 py-3 rounded-full text-white bg-[#6F4E37] hover:bg-[#5A3F2E] transition-all shadow-md"
+      >
+        Home
+      </a>
+        <h1 className="text-4xl font-bold text-[#4a2e21] text-center mb-10">
+          All Service Categories
+        </h1>
+
+ 
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          {categories.map((cat) => {
+            const Icon = iconMap[cat.icon] || FaTools;
+
+            return (
+              <div
+                key={cat.id}
+                onClick={() => router.push(`/categories/${cat.id}`)}  
+                className="cursor-pointer bg-white p-6 rounded-xl shadow-md border border-[#e5dcc7] 
+                           hover:shadow-lg hover:scale-105 transition-all flex flex-col items-center"
+              >
+                <Icon className="text-4xl text-[#7a5c49] mb-3" />
+                <p className="text-sm font-medium text-[#4a2e21]">
+                  {cat.name}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {cat._count?.subcategories || 0} subcategories
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

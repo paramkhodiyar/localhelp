@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String      @id @default(uuid())
+  name        String
+  email       String      @unique
+  phone       String?
+  password    String
+  role        UserRole    @default(CUSTOMER) 
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  providerProfile ProviderProfile?
+  addresses       Address[]
+  bookingsAsCustomer Booking[] @relation("CustomerBookings")
+  bookingsAsProvider Booking[] @relation("ProviderBookings")
+  reviewsWritten   Review[]    @relation("UserReviewsWritten")
+  reviewsReceived  Review[]    @relation("UserReviewsReceived")
+}
+
+enum UserRole {
+  CUSTOMER
+  PROVIDER
+  BOTH
+}
+
+model ProviderProfile {
+  id            String      @id @default(uuid())
+  userId        String      @unique
+
+  bio           String?
+  experience    Int?       
+  isVerified    Boolean     @default(false)
+  rating        Float?      @default(0)
+  createdAt     DateTime    @default(now())
+
+
+  user          User        @relation(fields: [userId], references: [id])
+  documents     ProviderDocument[]
+  services      ProviderService[]
+}
+
+model ProviderDocument {
+  id            String      @id @default(uuid())
+  providerId    String
+  type          DocumentType
+  url           String
+  uploadedAt    DateTime @default(now())
+
+  provider      ProviderProfile @relation(fields: [providerId], references: [id])
+}
+
+enum DocumentType {
+  AADHAAR
+  PAN
+  LICENSE
+  CERTIFICATE
+  OTHER
+}
+
+model ProviderService {
+  id              String     @id @default(uuid())
+  providerId      String
+  categoryId      String
+  subcategoryId   String?
+  price           Float
+  description     String?
+  duration        Int?
+
+  provider        ProviderProfile @relation(fields: [providerId], references: [id])
+  category        ServiceCategory @relation(fields: [categoryId], references: [id])
+  subcategory     ServiceSubCategory? @relation(fields: [subcategoryId], references: [id])
+  bookings        Booking[]
+}
+
+model ServiceCategory {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  icon        String?
+  subcategories ServiceSubCategory[]
+  services    ProviderService[]
+}
+
+model ServiceSubCategory {
+  id          String   @id @default(uuid())
+  name        String
+  categoryId  String
+
+  category     ServiceCategory @relation(fields: [categoryId], references: [id])
+  services     ProviderService[]
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  userId    String
+  street    String
+  city      String
+  state     String
+  pincode   String
+  latitude  Float?
+  longitude Float?
+  type      AddressType @default(HOME)
+
+  user      User @relation(fields: [userId], references: [id])
+}
+
+enum AddressType {
+  HOME
+  WORK
+}
+
+model Booking {
+  id            String      @id @default(uuid())
+  customerId    String
+  providerId    String
+  serviceId     String
+  date          DateTime
+  status        BookingStatus @default(PENDING)
+  amount        Float
+  address       String?
+  createdAt     DateTime @default(now())
+
+  customer     User    @relation("CustomerBookings", fields: [customerId], references: [id])
+  provider     User    @relation("ProviderBookings", fields: [providerId], references: [id])
+  service      ProviderService @relation(fields: [serviceId], references: [id])
+  review       Review?
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  COMPLETED
+  CANCELLED
+}
+
+model Review {
+  id             String    @id @default(uuid())
+  bookingId      String    @unique
+  reviewerId     String
+  reviewedUserId String
+  rating         Int
+  comment        String?
+  createdAt      DateTime  @default(now())
+
+  booking        Booking @relation(fields: [bookingId], references: [id])
+  reviewer       User    @relation("UserReviewsWritten", fields: [reviewerId], references: [id])
+  reviewedUser   User    @relation("UserReviewsReceived", fields: [reviewedUserId], references: [id])
+}
