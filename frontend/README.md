@@ -1,44 +1,178 @@
 # LocalHelp
 
-LocalHelp is a community-driven service marketplace designed to connect users with trusted local service providers. The platform serves as a single destination for discovering, booking, and managing essential day-to-day services offered by individuals within a local community.
+LocalHelp is a full-stack service marketplace inspired by modern platforms like Urban Company.  
+Users can sign up, log in, browse service categories, and connect with verified local service providers.  
+Service providers can also register themselves through a dedicated onboarding flow.
 
-## Overview
+---
 
-LocalHelp bridges the gap between people seeking help for everyday tasks and skilled individuals capable of providing those services. The platform focuses on simplicity, transparency, and accessibility, ensuring users can quickly find what they need without complexity.
+## Live Links
 
-## Core Concept
+**Frontend:**  
+https://localhelpfrontendv2.vercel.app/
 
-The platform enables two types of users:
+**Backend API:**  
+https://localhelpbackendv2.onrender.com
 
-1. **Customers**  
-   Individuals looking for services such as tutoring, home cleaning, pet care, electrical repair, cooking assistance, and more.
+---
 
-2. **Service Providers**  
-   Verified and skilled individuals who offer services within the community. Providers can register, build profiles, display pricing, and manage their offerings.
+## Project Overview
 
-The platform ensures a smooth transition for customers who wish to become providers by allowing them to upgrade their role and submit additional details.
+LocalHelp enables a seamless connection between customers and trusted service providers from the local community.  
+The platform supports:
 
-## Key Features
+- User authentication (signup, login, logout)
+- JWT-based security (stored via cookies or localStorage)
+- Browsing service categories and mock listings
+- Role-based navigation (Customer / Service Provider)
+- Clean, responsive UI built with Next.js and TailwindCSS
+- Backend powered by Express.js, Prisma ORM, and PostgreSQL
 
-### User Authentication
-Users can sign up, log in, and maintain authenticated sessions using secure JWT-based cookies. Role-based access ensures that protected routes are accessible only to the correct user type.
+---
 
-### Service Categories
-The landing page displays a structured collection of service categories. Each category includes visually recognizable icons and leads to a list of available providers for that service.
+## Features
 
-### Provider Profiles
-Service providers maintain detailed profiles that may include pricing, services offered, experience, and verification status. Customers can browse these profiles and choose providers based on their requirements.
+### User Features
+- Sign up with name, email, phone, password
+- Log in with JWT authentication
+- Access protected routes (landing page, services page)
+- View service categories
+- View all available services (fetched from backend)
 
-### Location Detection
-The platform can request permission to access the user's geographic location. Upon approval, it automatically detects and displays the user's city, allowing the service listings to be personalized based on location.
+### Provider Features
+- Become a provider through onboarding flow
+- Provider profile stored in PostgreSQL via Prisma
+- Role assigned dynamically (`CUSTOMER` → `PROVIDER`)
 
-### User Dashboard
-A dedicated dashboard allows authenticated users to browse categories, view metrics, and explore services with a clear and focused interface. Metrics highlight platform scale such as customer counts, verified providers, and service availability.
+### Technical Features
+- JWT Authentication (Bearer token)
+- Prisma ORM with relational schema
+- Secure password hashing using bcrypt
+- CORS configured for cross-domain communication
+- Fully responsive frontend layout
 
-### Become a Provider
-A streamlined onboarding process enables existing users to become service providers. This includes collecting additional information and setting up a provider profile.
+---
 
-## Vision
+## Tech Stack
 
-LocalHelp aims to empower local communities by encouraging skill-sharing and offering opportunities for small-scale service providers. At the same time, it provides customers with a reliable system to find capable individuals for everyday tasks. The goal is to simplify daily life through accessible, community-based solutions.
+### Frontend
+- Next.js 14+ (App Router)
+- Tailwind CSS
+- React Icons
+- React Hot Toast
+- Responsive layout with custom components
 
+### Backend
+- Node.js + Express.js
+- PostgreSQL database
+- Prisma ORM
+- JWT Authentication
+- Bcrypt password hashing
+
+Deployment:
+- Frontend: Vercel  
+- Backend: Render  
+- Database: PostgreSQL on Render
+
+---
+
+## API Endpoints
+
+### Auth
+| Method | Endpoint            | Description                    |
+|--------|----------------------|--------------------------------|
+| POST   | `/api/auth/signup`   | Create new user               |
+| POST   | `/api/auth/login`    | Login and get JWT token       |
+| POST   | `/api/auth/logout`   | Logout user                   |
+| GET    | `/api/auth/me`       | Get logged-in user details    |
+
+### Services (for future expansion)
+| Method | Endpoint                    | Description                     |
+|--------|------------------------------|---------------------------------|
+| GET    | `/api/services/categories`   | Fetch all categories            |
+| GET    | `/api/services/subcategories/:id` | Fetch subcategories        |
+| GET    | `/api/services`             | Fetch all services              |
+
+---
+
+## Environment Variables
+
+### Frontend (Next.js)
+Create `.env.local`:
+
+```
+NEXT_PUBLIC_API_URL=https://localhelpbackendv2.onrender.com
+```
+
+### Backend
+Create `.env`:
+
+```
+DATABASE_URL="your_postgres_url"
+JWT_SECRET="your_jwt_secret"
+```
+
+---
+
+## Folder Structure
+
+### Frontend
+```
+/app
+  /login
+  /signup
+  /landingpage
+  /services
+/components
+/styles
+```
+
+### Backend
+```
+/controllers
+/middlewares
+/routes
+/utils
+prisma/schema.prisma
+server.js
+```
+
+---
+
+## Authentication Flow
+
+1. User signs in → Backend returns JWT token  
+2. Token is stored in **localStorage**  
+3. Protected pages call `/api/auth/me` with `Authorization: Bearer <token>`  
+4. If valid → allow access  
+5. If invalid → redirect to `/login`
+
+---
+
+## Deployment
+
+### Frontend
+- Hosted on Vercel  
+- Uses `NEXT_PUBLIC_API_URL` to connect to backend
+
+### Backend
+- Hosted on Render  
+- CORS properly configured for Vercel domain
+
+---
+
+## Future Enhancements
+
+- Provider dashboard
+- Booking system  
+- Real-time notifications  
+- Payment gateway  
+- Reviews and ratings  
+- Search and filtering  
+- Location-based service sorting
+
+---
+
+## Credits
+
+Developed as a modern service marketplace to empower local communities and service providers.
